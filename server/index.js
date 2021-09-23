@@ -44,7 +44,8 @@ app.get('/offset_project', async(req, res) => {
 app.get('/grid_mix', async(req, res) => {
   // The utility type should be provided as a param 
   let utilityName = req.query.utilityName;
-  let balancingAuthorityId = balancingAuthorityIdForUtilityName[utilityName];
+  // TODO: use the provided utility name
+  let balancingAuthorityId = balancingAuthorityIdForUtilityName['PG&E'];
   if (balancingAuthorityId === null) {
     res.sendStatus(400);
   }
@@ -79,7 +80,7 @@ app.post('/utility_connect_token', async (req, res) => {
 // HTTP 200 with JSON when we have finally received the data
 app.get('/statements_average', (req, res) => {
   if (averageStatementUsage !== null) {
-    res.json({average_kwh: averageStatementUsage });
+    res.json({ averageStatementUsage: averageStatementUsage });
   } else {
     res.sendStatus(400);
   }
@@ -90,7 +91,7 @@ app.get('/statements_average', (req, res) => {
 // HTTP 200 with JSON when we have finally received the name
 app.get('/utility_name', (req, res) => {
   if (utilityName !== null) {
-    res.json({utility_name: utilityName});
+    res.json({ utilityName: utilityName });
   } else {
     res.sendStatus(400);
   }

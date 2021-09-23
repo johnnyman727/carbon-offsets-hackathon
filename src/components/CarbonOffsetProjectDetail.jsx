@@ -1,19 +1,69 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useParams, useHistory} from 'react-router-dom';
 import {Row, Col, Card, Button} from 'react-bootstrap';
 import { useInterval } from '../utils/useInterval';
 import './CarbonOffsetProjectDetail.scss'
 
 const CarbonOffsetProjectDetail = () => {
-    const [zipCode, setZipCode] = useState('94117');
+    const [utilityName, setUtilityName] = useState('Loading...');
+    const [projectImageURL, setProjectImageURL] = useState(null);
+    const [projectName, setProjectName] = useState('Loading...');
+    const [projectLocation, setProjectLocation] = useState('Loading...')
+    const [projectPrice, setProjectPrice] = useState(0);
+    // const [projectDescription, setProjectDescription] = useState('Loading...');
+    const [renewablesMix, setRenewablesMix] = useState(0);
+    const [nuclearMix, setNuclearMix] = useState(0);
+    const [fossilFuelMix, setFossilFuelMix] = useState(0);
+    const [averageCarbonIntensity, setAverageCarbonIntensity] = useState(0);
+
     const { projectType } = useParams();
 
-    const [avgUsage, setAvgUsage] = useState();
+    const [avgUsage, setAvgUsage] = useState(0);
+
+    useEffect(async () => {
+        const response = await fetch(`http://localhost:3000/offset_project?projectType=${projectType}`);
+        const data = await response.json();
+        setProjectImageURL(data.photos[0].url);
+        setProjectName(data.name);
+        setProjectLocation(data.country);
+        setProjectPrice(data.average_price_per_tonne_cents_usd/100);
+      }, []);
+
     
     useInterval(async () => {
-        const response = await fetch(`/statements_average`);
+        // Super hacky, don't know how to clear this custom hook interval
+        // if (avgUsage !== null) return;
+
+        const response = await fetch(`http://localhost:3000/statements_average`);
         const data = await response.json();
-        setAvgUsage(data);
+        setAvgUsage(data.averageStatementUsage);
+    } , 1000);
+
+    useInterval(async () => {
+        // if (utilityName !== null) return;
+        // Super hacky, don't know how to clear this custom hook interval
+        const response = await fetch(`http://localhost:3000/utility_name`)
+        const data = await response.json();
+        setUtilityName(data.utilityName);
+
+        const gridMixResponse = await fetch(`http://localhost:3000/grid_mix?utilityName=${utilityName}`);
+        const gridMixData = await gridMixResponse.json();
+        const generationMix = gridMixData.baGenerationMixes;
+
+        setAverageCarbonIntensity(gridMixData.averageTonnesCo2PerKwH);
+
+        for (var i = 0; i < 3; i++) {
+            if (generationMix[i].generationSource.name === 'Renewables') {
+                setRenewablesMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+            }
+            else if (generationMix[i].generationSource.name === 'Nuclear') {
+                setNuclearMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+            }
+            else if (generationMix[i].generationSource.name === 'Fossil Fuel') {
+                setFossilFuelMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+            }
+        }
+
     } , 1000);
 
     const history = useHistory();
@@ -41,46 +91,47 @@ const CarbonOffsetProjectDetail = () => {
                 <Col xs={12} sm={6}>
                     <Button variant="outline-dark" onClick={() => history.push('/select')}>◀</Button>
                     <h3>Here’s the best carbon offset for you</h3>
-                    <p>We’ve found the {offsetMessage} in your zip code ({zipCode}).</p>
+                    <p>We’ve found the {offsetMessage} for your utility ({utilityName}).</p>
 
                     <Card className="mb-3">
-                        <Card.Img variant="top" src="https://dogtime.com/assets/uploads/2017/09/pit-bull-puppies-3-1280x720.jpg" />
+                        <Card.Img variant="top" src={projectImageURL} />
 
                         <Card.Body>
-                            <Card.Title>Project Name</Card.Title>
+                            <Card.Title>{projectName}</Card.Title>
                             <Card.Text>
                                 <Row className="g-0">
-                                    <Col>Offset Location</Col>
-                                    <Col className="text-end"><span className="text-success">$x</span> per tonne CO2</Col>
+                                    <Col>{projectLocation}</Col>
+                                    <Col className="text-end"><span className="text-success">${projectPrice.toFixed(2)}</span> per tonne CO2</Col>
                                 </Row>
                             </Card.Text>
                         </Card.Body>
                     </Card>
 
+                    
                     <Card className="mb-3">
                         <Card.Body>
                             <Card.Text>
-                                <p>The electricity generated in your zip code ({zipCode}) is a mix of different fuel sources.</p>
+                                <p>The electricity generated by your utility ({utilityName}) is a mix of different fuel sources.</p>
                                 <Row>
                                     <Col className="text-center">
-                                        <p className="fs-1">x%</p>
+                                        <p className="fs-1">{renewablesMix}%</p>
                                         <p>renewable</p>
                                     </Col>
                                     <Col className="text-center">
-                                        <p className="fs-1">x%</p>
+                                        <p className="fs-1">{nuclearMix}%</p>
                                         <p>nuclear</p>
                                     </Col>
                                     <Col className="text-center">
-                                        <p className="fs-1">x%</p>
+                                        <p className="fs-1">{fossilFuelMix}%</p>
                                         <p>fossil fuel</p>
                                     </Col>
                                 </Row>
                                 <Row>
-                                    {/* WE DON'T NEED NO STINKIN D3 */}
+
                                     <ul className="list-unstyled list-inline" style={{borderRadius:"10px"}}>
-                                        <li className="list-inline-item me-0 rounded-start renewable" style={{backgroundColor:"#1B511F",width:"30%"}}>&nbsp;</li>
-                                        <li className="list-inline-item me-0 nuclear" style={{backgroundColor:"#66ACFD",width:"10%"}}>&nbsp;</li>
-                                        <li className="list-inline-item me-0 fossil rounded-end" style={{backgroundColor:"#6E7B84",width:"60%"}}>&nbsp;</li>
+                                        <li className="list-inline-item me-0 rounded-start renewable" style={{backgroundColor:"#1B511F",width:`${renewablesMix}%`}}>&nbsp;</li>
+                                        <li className="list-inline-item me-0 nuclear" style={{backgroundColor:"#66ACFD",width:`${nuclearMix}%`}}>&nbsp;</li>
+                                        <li className="list-inline-item me-0 fossil rounded-end" style={{backgroundColor:"#6E7B84",width:`${fossilFuelMix}%`}}>&nbsp;</li>
                                     </ul>
                                     <ul className="list-unstyled list-inline text-center">
                                         <li className="list-inline-item"><span className="legend wind" />Renewable</li>
@@ -90,43 +141,44 @@ const CarbonOffsetProjectDetail = () => {
                                 </Row>
                             </Card.Text>
                         </Card.Body>
-                    </Card>
+                    </Card> 
+                   
 
                     <Row className="mb-3">
                         <Col className="text-muted">
                         Your average kWh usage per month
                         </Col>
                         <Col className="text-end">
-                            0000
+                            {avgUsage.toFixed(0)}
                         </Col>
                     </Row>
                     <Row className="mb-3">
-                        <Col className="text-muted">Average tonnes CO₂ emitted per kWh in {zipCode}</Col>
+                        <Col className="text-muted">Average tonnes CO₂ emitted per kWh in {utilityName}'s service territory.</Col>
                         <Col className="text-end">
-                            0000
+                            {averageCarbonIntensity}
                         </Col>
                     </Row>
                     <Row className="mb-3">
                         <Col className="text-muted">Average tonnes CO₂ you emit per month</Col>
                         <Col className="text-end">
-                            0000
+                            {(averageCarbonIntensity * avgUsage).toFixed(2)}
                         </Col>
                     </Row>
                     <Row className="mb-3">
                         <Col className="text-muted">Removal price per tonne CO₂</Col>
                         <Col className="text-end text-success">
-                            0000
+                            {(projectPrice).toFixed(2)}
                         </Col>
                     </Row>
                     <Row className="text-primary">
                         <Col>Average monthly carbon removal subscription fee</Col>
                         <Col className="text-end">
-                            0000
+                            ${(averageCarbonIntensity * avgUsage * (projectPrice * 100)).toFixed(2)}
                         </Col>
                     </Row>
 
                     <div className="d-grid my-3">
-                        <Button variant="dark">Subscribe for $x per month</Button>
+                        <Button variant="dark">Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice * 100)).toFixed(2)} per month</Button>
                     </div>
 
                     <p className="text-muted">Note that this is an estimated fee. Your actual monthly fee will vary based on your electricity usage.</p>

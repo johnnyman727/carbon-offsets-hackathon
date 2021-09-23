@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUtilityConnect } from '@arcadia-eng/utility-connect-react';
 import { getUtilityConnectToken } from '../utils/session';
+import { useHistory } from 'react-router-dom';
 
 const UtilityConnectWidget = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -9,6 +10,7 @@ const UtilityConnectWidget = () => {
   const [error, setError] = useState(null);
   const [timedOut,  setTimedOut] = useState(false);
   const [utilityCredentialId, setUtilityCredentialId] = useState(null);
+  const history = useHistory();
 
   // This is the hook for the Utility Connect Component
   const [{ loading, utilityConnectSetupError }, open] = useUtilityConnect();
@@ -46,13 +48,12 @@ const UtilityConnectWidget = () => {
           switch (status) {
             // A user submitted their credentials and those credentials were verified during the regular course of the Component's user experience
             case "verified":
-              setSuccessful(true);
+              history.push(`/select/`)
               break;
             // A user submitted their credentials but they could not be verified in a reasonable amount of time before the Component redirected the user back to your app.
             // Credentials will still be verified in the background, but if your receive a UtilityCredentialRejected webhook, you'll need to prompt this user to enter the Utility Connect process again.
             case "timed_out":
-              setSuccessful(true);
-              setTimedOut(true);
+              history.push(`/select/`)
               break;
             default:
               break;

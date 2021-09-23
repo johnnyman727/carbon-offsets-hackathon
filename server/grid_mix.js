@@ -17,6 +17,10 @@ const SolarGeneration = new GenerationSource('Solar', 0.0000);
 const WindGeneration = new GenerationSource('Wind', 0.0000);
 const HydropowerGeneration = new GenerationSource('Hydropower', 0.0000);
 
+// Made these just to match the mocks
+const RenewablesGeneration = new GenerationSource('Renewables', 0.0000);
+const FossilFuelGeneration = new GenerationSource('Fossil Fuel', 0.000549);
+
 // This class tracks how much of a generating source is called upon in a Balancing Authority
 // A Balancing Authority is a independent market of the grid responsible for matching supply with demand
 class BAGenerationMix {
@@ -29,11 +33,13 @@ class BAGenerationMix {
 }
 
 // An example mix of Generating Sources for the CAISO Balancing Authority
-const CAISONaturalGasMix = new BAGenerationMix(NaturalGasGeneration, 0.44)
-const CAISOHydropowerMix = new BAGenerationMix(HydropowerGeneration, 0.12)
-const CAISOSolarMix = new BAGenerationMix(SolarGeneration, 0.26)
-const CAISONuclearMix = new BAGenerationMix(NuclearGeneration, 0.7)
-const CAISOWindMix = new BAGenerationMix(WindGeneration, 0.11)
+// const CAISONaturalGasMix = new BAGenerationMix(NaturalGasGeneration, 0.44)
+// const CAISOHydropowerMix = new BAGenerationMix(HydropowerGeneration, 0.12)
+// const CAISOSolarMix = new BAGenerationMix(SolarGeneration, 0.26)
+const CAISONuclearMix = new BAGenerationMix(NuclearGeneration, 0.07);
+// const CAISOWindMix = new BAGenerationMix(WindGeneration, 0.11)
+const CAISORenewablesMix = new BAGenerationMix(RenewablesGeneration, 0.49);
+const CAISOFossilFuelMix = new BAGenerationMix(FossilFuelGeneration, 0.44);
 
 // Grid Intensity Data represents all the data you need about a Balancing Authority to populate the UI
 class GridIntensityData {
@@ -49,7 +55,8 @@ class GridIntensityData {
 }
 
 // Wrap up all the grid intensity data for one Balancing Authority (CAISO)
-const CAISOGridIntensityData = new GridIntensityData('CAISO', [CAISONaturalGasMix, CAISOHydropowerMix, CAISOSolarMix, CAISONuclearMix, CAISOWindMix], 0.000436)
+// const CAISOGridIntensityData = new GridIntensityData('CAISO', [CAISONaturalGasMix, CAISOHydropowerMix, CAISOSolarMix, CAISONuclearMix, CAISOWindMix], 0.000436)
+const CAISOGridIntensityData = new GridIntensityData('CAISO', [CAISORenewablesMix, CAISONuclearMix, CAISOFossilFuelMix], 0.000436);
 
 // Map that links utilities that we support for Utility Connect to particular Balancing Authorities
 // For now, we only have CAISO.
