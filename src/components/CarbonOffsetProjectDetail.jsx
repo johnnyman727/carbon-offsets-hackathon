@@ -32,7 +32,7 @@ const CarbonOffsetProjectDetail = () => {
     
     useInterval(async () => {
         // Super hacky, don't know how to clear this custom hook interval
-        // if (avgUsage !== null) return;
+        if (avgUsage !== 0) return;
 
         const response = await fetch(`http://localhost:3000/statements_average`);
         const data = await response.json();
@@ -40,7 +40,7 @@ const CarbonOffsetProjectDetail = () => {
     } , 1000);
 
     useInterval(async () => {
-        // if (utilityName !== null) return;
+        if (utilityName !== 'Loading...') return;
         // Super hacky, don't know how to clear this custom hook interval
         const response = await fetch(`http://localhost:3000/utility_name`)
         const data = await response.json();
@@ -149,7 +149,7 @@ const CarbonOffsetProjectDetail = () => {
                         Your average kWh usage per month
                         </Col>
                         <Col className="text-end">
-                            {avgUsage.toFixed(0)}
+                            {avgUsage ? avgUsage.toFixed(0) : 'Loading average usage...'}
                         </Col>
                     </Row>
                     <Row className="mb-3">
