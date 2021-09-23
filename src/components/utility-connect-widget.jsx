@@ -57,14 +57,14 @@ const UtilityConnectWidget = () => {
             // A user submitted their credentials and those credentials were verified during the regular course of the Component's user experience
             case "verified":
               setSuccessful(true);
-              window.location = `/select/`; // TODO: need to use window.location because of how Utility COnnect injects itself into the page.
+              window.location = `/select/`; // TODO: need to use window.location because of how Utility Connect injects itself into the page.
               break;
             // A user submitted their credentials but they could not be verified in a reasonable amount of time before the Component redirected the user back to your app.
             // Credentials will still be verified in the background, but if your receive a UtilityCredentialRejected webhook, you'll need to prompt this user to enter the Utility Connect process again.
             case "timed_out":
               setSuccessful(true);
               setTimedOut(true);
-              window.location = `/select/`; // TODO: need to use window.location because of how Utility COnnect injects itself into the page.
+              window.location = `/select/`; // TODO: need to use window.location because of how Utility Connect injects itself into the page.
               break;
             default:
               break;
