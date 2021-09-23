@@ -4,13 +4,19 @@ import {Row, Col, Card, Button} from 'react-bootstrap';
 import { useInterval } from '../utils/useInterval';
 import './CarbonOffsetProjectDetail.scss'
 
+const buyProject= (projectId, price) => {
+    const response = fetch(`http://localhost:3000/purchase_project?project_id=${projectId}&total_price_cents_usd=${price}`);
+    return;
+};
+
 const CarbonOffsetProjectDetail = () => {
     const [utilityName, setUtilityName] = useState('Loading...');
     const [projectImageURL, setProjectImageURL] = useState(null);
+    const [projectId, setProjectId] = useState(null);
     const [projectName, setProjectName] = useState('Loading...');
     const [projectLocation, setProjectLocation] = useState('Loading...')
     const [projectPrice, setProjectPrice] = useState(0);
-    // const [projectDescription, setProjectDescription] = useState('Loading...');
+    const [projectDescription, setProjectDescription] = useState('Loading...');
     const [renewablesMix, setRenewablesMix] = useState(0);
     const [nuclearMix, setNuclearMix] = useState(0);
     const [fossilFuelMix, setFossilFuelMix] = useState(0);
@@ -20,51 +26,61 @@ const CarbonOffsetProjectDetail = () => {
 
     const [avgUsage, setAvgUsage] = useState(0);
 
+    // For pausing intervals once we fetch the data. Not great, but less hacky
+    const [statementAverageSuccess, setStatementAverageSuccess] = useState(false);
+    const [gridMixSuccess, setGridMixSuccess] = useState(false);
+
     useEffect(async () => {
         const response = await fetch(`http://localhost:3000/offset_project?projectType=${projectType}`);
         const data = await response.json();
         setProjectImageURL(data.photos[0].url);
+        setProjectId(data.id);
         setProjectName(data.name);
         setProjectLocation(data.country);
+        setProjectDescription(data.description);
         setProjectPrice(data.average_price_per_tonne_cents_usd/100);
       }, []);
 
     
     useInterval(async () => {
-        // Super hacky, don't know how to clear this custom hook interval
-        if (avgUsage !== 0) return;
-
-        const response = await fetch(`http://localhost:3000/statements_average`);
-        const data = await response.json();
-        setAvgUsage(data.averageStatementUsage);
-    } , 1000);
+        try {
+            const response = await fetch(`http://localhost:3000/statements_average`);
+            const data = await response.json();
+            setAvgUsage(data.averageStatementUsage);
+            setStatementAverageSuccess(true);
+        } catch(e) {
+            // do nothing, retry
+        }
+    } , statementAverageSuccess ? null : 1000);
 
     useInterval(async () => {
-        if (utilityName !== 'Loading...') return;
-        // Super hacky, don't know how to clear this custom hook interval
-        const response = await fetch(`http://localhost:3000/utility_name`)
-        const data = await response.json();
-        setUtilityName(data.utilityName);
+        try {
+            const response = await fetch(`http://localhost:3000/utility_name`)
+            const data = await response.json();
+            setUtilityName(data.utilityName);
 
-        const gridMixResponse = await fetch(`http://localhost:3000/grid_mix?utilityName=${utilityName}`);
-        const gridMixData = await gridMixResponse.json();
-        const generationMix = gridMixData.baGenerationMixes;
+            const gridMixResponse = await fetch(`http://localhost:3000/grid_mix?utilityName=${utilityName}`);
+            const gridMixData = await gridMixResponse.json();
+            const generationMix = gridMixData.baGenerationMixes;
 
-        setAverageCarbonIntensity(gridMixData.averageTonnesCo2PerKwH);
+            setAverageCarbonIntensity(gridMixData.averageTonnesCo2PerKwH);
 
-        for (var i = 0; i < 3; i++) {
-            if (generationMix[i].generationSource.name === 'Renewables') {
-                setRenewablesMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+            for (var i = 0; i < 3; i++) {
+                if (generationMix[i].generationSource.name === 'Renewables') {
+                    setRenewablesMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+                }
+                else if (generationMix[i].generationSource.name === 'Nuclear') {
+                    setNuclearMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+                }
+                else if (generationMix[i].generationSource.name === 'Fossil Fuel') {
+                    setFossilFuelMix((generationMix[i].averageGridContribution * 100).toFixed(0));
+                }
             }
-            else if (generationMix[i].generationSource.name === 'Nuclear') {
-                setNuclearMix((generationMix[i].averageGridContribution * 100).toFixed(0));
-            }
-            else if (generationMix[i].generationSource.name === 'Fossil Fuel') {
-                setFossilFuelMix((generationMix[i].averageGridContribution * 100).toFixed(0));
-            }
+            setGridMixSuccess(true);
+        } catch(e) {
+            // do nothing, retry
         }
-
-    } , 1000);
+    } , gridMixSuccess ? null : 1000);
 
     const history = useHistory();
 
@@ -87,7 +103,7 @@ const CarbonOffsetProjectDetail = () => {
 
     return (
         <div className="container">
-            <Row className="justify-content-md-center">
+            <Row className="justify-content-md-center mt-3">
                 <Col xs={12} sm={6}>
                     <Button variant="outline-dark" onClick={() => history.push('/select')}>◀</Button>
                     <h3>Here’s the best carbon offset for you</h3>
@@ -102,6 +118,9 @@ const CarbonOffsetProjectDetail = () => {
                                 <Row className="g-0">
                                     <Col>{projectLocation}</Col>
                                     <Col className="text-end"><span className="text-success">${projectPrice.toFixed(2)}</span> per tonne CO2</Col>
+                                </Row>
+                                <Row>
+                                    <Col>{projectDescription}</Col>
                                 </Row>
                             </Card.Text>
                         </Card.Body>
@@ -178,7 +197,9 @@ const CarbonOffsetProjectDetail = () => {
                     </Row>
 
                     <div className="d-grid my-3">
-                        <Button variant="dark">Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)} per month</Button>
+                        <Button variant="dark" onClick={() => buyProject(projectId, (100 * averageCarbonIntensity * avgUsage * (projectPrice)))} >
+                            Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)} per month
+                        </Button>
                     </div>
 
                     <p className="text-muted">Note that this is an estimated fee. Your actual monthly fee will vary based on your electricity usage.</p>

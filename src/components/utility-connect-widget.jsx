@@ -31,6 +31,16 @@ const UtilityConnectWidget = () => {
       });
   }, []);
 
+  // As soon as we're ready, open the Utility Connect Modal
+  useEffect(() => {
+    // Don't open the modal if we've already succesfully connected
+    if (successful || error || timedOut) return;
+
+    if (!loading && !!config) {
+      open(config);
+    }
+  }, [loading, config])
+
   const generateConfig = utilityConnectToken => {
     return {
       utilityConnectToken,
@@ -48,12 +58,15 @@ const UtilityConnectWidget = () => {
           switch (status) {
             // A user submitted their credentials and those credentials were verified during the regular course of the Component's user experience
             case "verified":
-              history.push(`/select/`)
+              setSuccessful(true);
+              window.location = `/select/`; // TODO: need to use window.location because of how Utility Connect injects itself into the page.
               break;
             // A user submitted their credentials but they could not be verified in a reasonable amount of time before the Component redirected the user back to your app.
             // Credentials will still be verified in the background, but if your receive a UtilityCredentialRejected webhook, you'll need to prompt this user to enter the Utility Connect process again.
             case "timed_out":
-              history.push(`/select/`)
+              setSuccessful(true);
+              setTimedOut(true);
+              window.location = `/select/`; // TODO: need to use window.location because of how Utility Connect injects itself into the page.
               break;
             default:
               break;
@@ -89,10 +102,9 @@ const UtilityConnectWidget = () => {
   }
 
   return (
-    // When the button is clicked, we call the Utility Connect Component's open method in order to display the modal
-    <button type="button" disabled={loading || !config} onClick={() => open(config)}>
-      Launch Utility Connect Component
-    </button>
+    <>
+      {(loading || !config) && "Loading..."}
+    </>
   );
 };
 

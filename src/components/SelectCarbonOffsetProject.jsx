@@ -4,6 +4,7 @@ import {Row, Col, Card, Button} from 'react-bootstrap';
 import './SelectCarbonOffsetProject.scss';
 import {ReactComponent as AffordableIcon} from '../img/affordable.svg';
 import {ReactComponent as PermanentIcon} from '../img/permanent.svg';
+import {ReactComponent as LocalIcon} from '../img/local.svg';
 import {ReactComponent as RdIcon} from '../img/rd.svg';
 
 const selected = 'border-3 border-primary selected';
@@ -50,7 +51,9 @@ const SelectCarbonOffsetProject = () => {
                     <Card className={"mb-3 offset-type " + (projectType == 'local' && selected)} onClick={() => toggleProjectType('local')}>
                         <Row className="g-0">
                             <Col sm={3} className="d-flex align-items-center justify-content-center">
-                                <img width="100%" src="https://dogtime.com/assets/uploads/2017/09/pit-bull-puppies-3-1280x720.jpg" />
+                                <div className="d-flex align-items-center justify-content-center icon-container local">
+                                    <LocalIcon />
+                                </div>
                             </Col>
                             <Col sm={9}>
                                 <Card.Body>
