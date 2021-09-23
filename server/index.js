@@ -8,7 +8,7 @@ import cors from 'cors';
 import { validateWebhookSignature, getUtilityConnectToken, calculateStatementsAverageUsage } from './utils.js';
 import fs from 'fs';
 import { balancingAuthorityIdForUtilityName, gridIntensityDataForBalancingAuthorityId } from './grid_mix.js'
-import { getCarbonOffsetProjects } from './carbon_offsets.js';
+import { getCarbonOffsetProjects, buyCarbonOffsetProject } from './carbon_offsets.js';
 
 
 const port = PORT || 3000;
@@ -57,6 +57,13 @@ app.get('/offset_project', async(req, res) => {
 
   res.send(projects[1]);
 });
+
+app.get('/purchase_project', async(req, res) => {
+  let price = req.query.total_price_cents_usd;
+  let projectId = req.query.project_id;
+  await buyCarbonOffsetProject(projectId, price);
+  res.sendStatus(200);
+})
 
 // This endpoint will be used by the FE to request details on the carbon intensity of a particular utility
 app.get('/grid_mix', async(req, res) => {

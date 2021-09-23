@@ -20,3 +20,7 @@ export const getCarbonOffsetProjects = async (filterType={}) => {
     }
     return projects.data;
 };
+
+export const buyCarbonOffsetProject = async(projectId, cost) => {
+    const projects = await patch.orders.createOrder({ project_id: projectId, total_price_cents_usd: cost });
+}

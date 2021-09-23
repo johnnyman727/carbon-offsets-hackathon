@@ -4,9 +4,15 @@ import {Row, Col, Card, Button} from 'react-bootstrap';
 import { useInterval } from '../utils/useInterval';
 import './CarbonOffsetProjectDetail.scss'
 
+const buyProject= (projectId, price) => {
+    const response = fetch(`http://localhost:3000/purchase_project?project_id=${projectId}&total_price_cents_usd=${price}`);
+    return;
+};
+
 const CarbonOffsetProjectDetail = () => {
     const [utilityName, setUtilityName] = useState('Loading...');
     const [projectImageURL, setProjectImageURL] = useState(null);
+    const [projectId, setProjectId] = useState(null);
     const [projectName, setProjectName] = useState('Loading...');
     const [projectLocation, setProjectLocation] = useState('Loading...')
     const [projectPrice, setProjectPrice] = useState(0);
@@ -28,6 +34,7 @@ const CarbonOffsetProjectDetail = () => {
         const response = await fetch(`http://localhost:3000/offset_project?projectType=${projectType}`);
         const data = await response.json();
         setProjectImageURL(data.photos[0].url);
+        setProjectId(data.id);
         setProjectName(data.name);
         setProjectLocation(data.country);
         setProjectDescription(data.description);
@@ -190,7 +197,9 @@ const CarbonOffsetProjectDetail = () => {
                     </Row>
 
                     <div className="d-grid my-3">
-                        <Button variant="dark">Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)} per month</Button>
+                        <Button variant="dark" onClick={() => buyProject(projectId, (100 * averageCarbonIntensity * avgUsage * (projectPrice)))} >
+                            Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)} per month
+                        </Button>
                     </div>
 
                     <p className="text-muted">Note that this is an estimated fee. Your actual monthly fee will vary based on your electricity usage.</p>
