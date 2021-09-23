@@ -6,6 +6,8 @@ const { PORT } = process.env;
 import express from 'express';
 import cors from 'cors';
 import { validateWebhookSignature, getUtilityConnectToken, calculateStatementsAverageUsage } from './utils.js';
+import fs from 'fs';
+import path from 'path';
 
 
 const port = PORT || 3000;
@@ -27,12 +29,13 @@ let averageStatementUsage = null;
 let utilityName = null;
 
 // This endpoint will be used by the FE to request a particular carbon offset project
-app.get('/carbon_offset_projects', async(req, res) => {
+app.get('/offset_project', async(req, res) => {
   // The project type should be provided as a param 
-  let projectType = JSON.parse(req.query.projectType);
+  // let projectType = JSON.parse(req.query.projectType);
+  console.log('request query', req.query.projectType)
 
   // TODO: Return details on the carbon offset project that is the best fit for the requested project type
-  let projectResponse = {};
+  let projectResponse = fs.readFileSync(new URL('./mock_response_json/offset_project.json', import.meta.url));
 
   res.send(projectResponse);
 });

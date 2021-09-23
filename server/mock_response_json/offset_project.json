@@ -1,0 +1,35 @@
+{
+    "id": "pro_prod_31021f2719fbcc2fb09113551d46323d",
+    "production": true,
+    "name": "HUSK Biochar",
+    "description": "HUSK is the leading producer of carbon based fertilizers and natural pesticides for smallholders. They are a high impact social enterprise that makes and sells biochar based products and supports others to do the same. Their products and services are truly sustainable. They transform agricultural waste products into highly effective inputs, helping to boost soil fertility, increase revenues for smallholders and sequester carbon. Their first installation in Cambodia produces biochar and sequesters carbon using pyrolysis in a rice mill, to transform an undervalued byproduct of the rice industry into effective and affordable agricultural inputs for smallholders.\\nHUSK makes and sells biochar based products for smallholder farmers. Biochar is charcoal made from plants that improves soil quality and increases crop yields by enhancing water holding capacity, nutrient uptake and fertilizer efficiency as well as stimulating microbial activity in the soil.  ",
+    "country": "KH",
+    "developer": "HUSK",
+    "average_price_per_tonne_cents_usd": 10000,
+    "remaining_mass_g": 77256200,
+    "type": "biomass",
+    "photos": [
+        {
+            "url": "https://dashboard.patch.io/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBSZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--16018cb3ae3cead0b92ff5c7ad8a9be8930d89a4/Husk%20_3.jpeg",
+            "id": "pho_prod_7a003008cf42989928205dbf877fc96e"
+        },
+        {
+            "url": "https://dashboard.patch.io/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBSdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--9658c4b0cbdc59a2135b990c353c083f69241208/Husk%20_4.jpeg",
+            "id": "pho_prod_449eaea1e921825d92e5ae25603ab1b6"
+        },
+        {
+            "url": "https://dashboard.patch.io/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBSQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e4a5aa1464c22653ad667ae6ba6780face6815aa/Husk%20_1.jpeg",
+            "id": "pho_prod_1507786b39dacf7848b21a126b3bdada"
+        },
+        {
+            "url": "https://dashboard.patch.io/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBSUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--9491e05495799702cbc5bc07c7ff98c0874793ae/Husk%20_2.jpeg",
+            "id": "pho_prod_2e5d14180cba863939537e55cd88dc15"
+        }
+    ],
+    "standard": {
+        "type": "european_biochar_certificate",
+        "acronym": "ebc",
+        "description": "The EBC was developed to limit the risks of biochar usages to the best of our scientific knowledge and to help the users and producers of biochar to prevent or at least to reduce any hazard for the health and for the environment while producing and using biochar."
+    },
+    "sdgs": []
+}
