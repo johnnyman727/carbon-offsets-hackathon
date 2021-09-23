@@ -16,6 +16,14 @@ const SelectedCheck = () => {
 }
 
 const SelectCarbonOffsetProject = () => {
+    const [projectType, setProjectType] = useState();
+
+    const history = useHistory();
+
+    function toggleProjectType(type) {
+        setProjectType((type === projectType) ? null : type);
+    }
+
     return (
         <div className="container">
             <Row className="justify-content-md-center">

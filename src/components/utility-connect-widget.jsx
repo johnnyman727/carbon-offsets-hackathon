@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useUtilityConnect } from '@arcadia-eng/utility-connect-react';
 import { getUtilityConnectToken } from '../utils/session';
+import { useHistory } from 'react-router-dom';
 
 const UtilityConnectWidget = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -9,6 +10,7 @@ const UtilityConnectWidget = () => {
   const [error, setError] = useState(null);
   const [timedOut,  setTimedOut] = useState(false);
   const [utilityCredentialId, setUtilityCredentialId] = useState(null);
+  const history = useHistory();
 
   // This is the hook for the Utility Connect Component
   const [{ loading, utilityConnectSetupError }, open] = useUtilityConnect();
@@ -75,7 +77,7 @@ const UtilityConnectWidget = () => {
         // Called if there was a catastrophic error when submitting the user's credential
         onError: ({ error }) => {
           console.log("Error submitting the credential? the token!", error);
-          setError("Frankenfurter");
+          setError(error);
         },
       },
       poll: {
