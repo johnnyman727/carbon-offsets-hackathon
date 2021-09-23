@@ -7,7 +7,8 @@ import express from 'express';
 import cors from 'cors';
 import { validateWebhookSignature, getUtilityConnectToken, calculateStatementsAverageUsage } from './utils.js';
 import fs from 'fs';
-import {balancingAuthorityIdForUtilityName, gridIntensityDataForBalancingAuthorityId } from './grid_mix.js'
+import { balancingAuthorityIdForUtilityName, gridIntensityDataForBalancingAuthorityId } from './grid_mix.js'
+import { getCarbonOffsetProjects } from './carbon_offsets.js';
 
 
 const port = PORT || 3000;
@@ -30,14 +31,31 @@ let utilityName = null;
 
 // This endpoint will be used by the FE to request a particular carbon offset project
 app.get('/offset_project', async(req, res) => {
-  // The project type should be provided as a param 
-  // let projectType = JSON.parse(req.query.projectType);
-  console.log('request query', req.query.projectType)
+  let projectType = req.query.projectType;
+  console.log('got this project type', projectType);
+  let filterType;
 
-  // TODO: Return details on the carbon offset project that is the best fit for the requested project type
-  let projectResponse = fs.readFileSync(new URL('./mock_response_json/offset_project.json', import.meta.url));
+  if (projectType === 'affordable') {
+    filterType = {type: 'forestry'};
+  }
+  else if (projectType === 'local') {
+    filterType = {country: 'US'};
+  }
+  else if (projectType === 'permanent') {
+    filterType = {type: 'biomass'};
+  }
+  else if (projectType === 'rd') {
+    filterType = {type: 'mineralization'};
+  }
 
-  res.send(projectResponse);
+  console.log('type', filterType);
+  const projects = await getCarbonOffsetProjects(filterType);
+
+  projects.sort(function (a, b) {
+    return a.average_price_per_tonne_cents_usd - b.average_price_per_tonne_cents_usd;
+  });
+
+  res.send(projects[1]);
 });
 
 // This endpoint will be used by the FE to request details on the carbon intensity of a particular utility
