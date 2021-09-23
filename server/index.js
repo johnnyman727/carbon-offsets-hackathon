@@ -23,6 +23,8 @@ app.use(cors(corsOptions));
 let currentClientUserId = null;
 // We will save statement data to this global var #hackathon-code
 let averageStatementUsage = null;
+// We will save the user's utility name to this global var #hackathon-code
+let utilityName = null;
 
 // This endpoint will be used by the FE to request a particular carbon offset project
 app.get('/carbon_offset_projects', async(req, res) => {
@@ -74,7 +76,18 @@ app.get('/statements_average', (req, res) => {
   } else {
     res.sendStatus(400);
   }
-})
+});
+
+
+// This endpoint should be polled. It will return HTTP 400 when we are still waiting for the utility name and
+// HTTP 200 with JSON when we have finally received the name
+app.get('/utility_name', (req, res) => {
+  if (utilityName !== null) {
+    res.json({utility_name: utilityName});
+  } else {
+    res.sendStatus(400);
+  }
+});
 
 // This is the endpoint that webhooks are delivered to
 app.post('/webhook_listener', (req, res) => {
@@ -88,17 +101,23 @@ app.post('/webhook_listener', (req, res) => {
     return res.sendStatus(200);
   }
 
-  // If this isn't a webhook for statements, abort
-  if (webhookPacket.type !== 'historical_utility_statements_discovered') {
+  // This is a webhook for statements
+  if (webhookPacket.type === 'historical_utility_statements_discovered') {
+    // Calculate the monthly average
+    averageStatementUsage = calculateStatementsAverageUsage(webhookPacket.data.statements);
     return res.sendStatus(200);
   }
 
-  // At this point in the codepath, this is a webhook with statements for the user so calculate the monthly average
-  averageStatementUsage = calculateStatementsAverageUsage(webhookPacket.data.statements);
+  // This is a webhook for verified creds
+  else if (webhookPacket.type === 'utility_credential_verified') {
+    // Save the utility name
+    utilityName = webhookPacket.data.utility_name;
+    return res.sendStatus(200)
+  }
+  else {
+    res.sendStatus(200);
+  }
 
-  console.log("Set the global statement average to: ", averageStatementUsage, 'kwh');
-
-  res.sendStatus(200);
 });
 
 // Starts the server

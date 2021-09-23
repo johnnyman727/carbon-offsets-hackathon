@@ -63,7 +63,7 @@ const UtilityConnectWidget = () => {
         // Called if there was a catastrophic error when submitting the user's credential
         onError: ({ error }) => {
           console.log("Error submitting the credential? the token!", error);
-          setError("Frankenfurter");
+          setError(error);
         },
       },
       poll: {
