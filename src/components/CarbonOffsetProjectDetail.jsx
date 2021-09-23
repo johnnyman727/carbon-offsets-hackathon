@@ -173,12 +173,12 @@ const CarbonOffsetProjectDetail = () => {
                     <Row className="text-primary">
                         <Col>Average monthly carbon removal subscription fee</Col>
                         <Col className="text-end">
-                            ${(averageCarbonIntensity * avgUsage * (projectPrice * 100)).toFixed(2)}
+                            ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)}
                         </Col>
                     </Row>
 
                     <div className="d-grid my-3">
-                        <Button variant="dark">Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice * 100)).toFixed(2)} per month</Button>
+                        <Button variant="dark">Subscribe for ${(averageCarbonIntensity * avgUsage * (projectPrice)).toFixed(2)} per month</Button>
                     </div>
 
                     <p className="text-muted">Note that this is an estimated fee. Your actual monthly fee will vary based on your electricity usage.</p>
