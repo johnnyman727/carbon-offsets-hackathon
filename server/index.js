@@ -7,7 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { validateWebhookSignature, getUtilityConnectToken, calculateStatementsAverageUsage } from './utils.js';
 import fs from 'fs';
-import path from 'path';
+import {balancingAuthorityIdForUtilityName, gridIntensityDataForBalancingAuthorityId } from './grid_mix.js'
 
 
 const port = PORT || 3000;
@@ -43,11 +43,15 @@ app.get('/offset_project', async(req, res) => {
 // This endpoint will be used by the FE to request details on the carbon intensity of a particular utility
 app.get('/grid_mix', async(req, res) => {
   // The utility type should be provided as a param 
-  let utilityName = JSON.parse(req.query.utilityName);
-
-  // TODO: Return details on the grid mix, including $ / kWh and the generating sources
-  let gridMix = {};
-
+  let utilityName = req.query.utilityName;
+  let balancingAuthorityId = balancingAuthorityIdForUtilityName[utilityName];
+  if (balancingAuthorityId === null) {
+    res.sendStatus(400);
+  }
+  let gridMix = gridIntensityDataForBalancingAuthorityId[balancingAuthorityId];
+  if (gridMix === null) {
+    res.sendStatus(400);
+  }
   res.send(gridMix);
 
 });
