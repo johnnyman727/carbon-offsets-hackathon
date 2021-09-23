@@ -109,6 +109,9 @@ app.post('/webhook_listener', (req, res) => {
     return res.sendStatus(200);
   }
 
+  console.log('Received a webhook with data:');
+  console.dir(JSON.parse(req.body), { depth: null });
+
   // This is a webhook for statements
   if (webhookPacket.type === 'historical_utility_statements_discovered') {
     // Calculate the monthly average
