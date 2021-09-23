@@ -10,7 +10,7 @@ const CarbonOffsetProjectDetail = () => {
     const [projectName, setProjectName] = useState('Loading...');
     const [projectLocation, setProjectLocation] = useState('Loading...')
     const [projectPrice, setProjectPrice] = useState(0);
-    // const [projectDescription, setProjectDescription] = useState('Loading...');
+    const [projectDescription, setProjectDescription] = useState('Loading...');
     const [renewablesMix, setRenewablesMix] = useState(0);
     const [nuclearMix, setNuclearMix] = useState(0);
     const [fossilFuelMix, setFossilFuelMix] = useState(0);
@@ -30,6 +30,7 @@ const CarbonOffsetProjectDetail = () => {
         setProjectImageURL(data.photos[0].url);
         setProjectName(data.name);
         setProjectLocation(data.country);
+        setProjectDescription(data.description);
         setProjectPrice(data.average_price_per_tonne_cents_usd/100);
       }, []);
 
@@ -110,6 +111,9 @@ const CarbonOffsetProjectDetail = () => {
                                 <Row className="g-0">
                                     <Col>{projectLocation}</Col>
                                     <Col className="text-end"><span className="text-success">${projectPrice.toFixed(2)}</span> per tonne CO2</Col>
+                                </Row>
+                                <Row>
+                                    <Col>{projectDescription}</Col>
                                 </Row>
                             </Card.Text>
                         </Card.Body>
